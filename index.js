@@ -139,7 +139,8 @@ async function checkRedisAndCheck3Commas () {
         dataFindOn3comas.status?.type === 'finished' ||
         dataFindOn3comas.status?.type === 'failed' ||
         dataFindOn3comas.status?.type === 'cancelled' ||
-        dataFindOn3comas.status?.type === 'panic_sold'
+        dataFindOn3comas.status?.type === 'panic_sold' ||
+        dataFindOn3comas.status?.type === 'stop_loss_finished'
       ) {
         // delete record from REDIS
         console.log(`updating dataFindOn3comas: ${dataFindOn3comas?.id} to REDIS`);
