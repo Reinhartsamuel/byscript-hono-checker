@@ -29,7 +29,7 @@ export default [
       "eqeqeq": ["error", "always"],
       "curly": ["error", "all"],
       "semi": ["error", "always"],
-      "quotes": ["error", "double", { "avoidEscape": true }],
+      "quotes": ["error", "double", "single", { "avoidEscape": true }],
       "comma-dangle": ["error", "never"],
       "object-curly-spacing": ["error", "always"],
       "array-bracket-spacing": ["error", "never"],

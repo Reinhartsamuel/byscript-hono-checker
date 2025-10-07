@@ -1,51 +1,13 @@
 import { Hono } from 'hono'
 import { adminDb } from './configs/firebase';
 import { redisClient } from './configs/redis';
-import { generateSignatureRsa } from './utils/generateSignatureRsa';
-
+import generateSignatureRsa from './utils/generateSignatureRsa';
 const app = new Hono()
 
 // Environment variables - these should be set in your deployment environment
 const API_KEY = process.env.THREE_COMMAS_API_KEY_CREATE_SMART_TRADE;
 const PRIVATE_KEY = process.env.THREE_COMMAS_RSA_PRIVATE_KEY_SMART_TRADE;
 const baseUrl = "https://api.3commas.io";
-
-// Placeholder for dependencies - these need to be configured in your new environment
-// const redisClient = {
-//   get: async (key) => {
-//     console.log(`[PLACEHOLDER] redisClient.get(${key})`);
-//     return null;
-//   },
-//   set: async (key, value) => {
-//     console.log(`[PLACEHOLDER] redisClient.set(${key}, ${value})`);
-//   },
-//   scan: async (cursor, options) => {
-//     console.log(`[PLACEHOLDER] redisClient.scan(${cursor}, ${JSON.stringify(options)})`);
-//     return { cursor: "0", keys: [] };
-//   }
-// };
-
-// const adminDb = {
-//   collection: (name) => ({
-//     where: (field, operator, value) => ({
-//       count: () => ({
-//         get: async () => ({
-//           data: () => ({ count: 0 })
-//         })
-//       }),
-//       get: async () => ({
-//         forEach: (callback) => {}
-//       })
-//     }),
-//     doc: (id) => ({
-//       update: async (data) => {
-//         console.log(`[PLACEHOLDER] adminDb.collection().doc(${id}).update(${JSON.stringify(data)})`);
-//       }
-//     })
-//   })
-// };
-
-
 
 const trackApiUsage = async () => {
   console.log(`[PLACEHOLDER] trackApiUsage()`);
@@ -93,7 +55,7 @@ async function checkRedisAndCheck3Commas() {
         },
       };
       // ==================================== TRACK API USAGE ================================
-      trackApiUsage().then((currentCount) => {console.log("API call count this minute:", currentCount);}).catch((e) => console.error("Error tracking API usage:", e));
+      trackApiUsage().then((currentCount) => { console.log("API call count this minute:", currentCount); }).catch((e) => console.error("Error tracking API usage:", e));
       // ==================================== TRACK API USAGE ================================
       const response = await fetch(finalUrl, config);
       const data = await response.json();
@@ -154,16 +116,16 @@ async function checkRedisAndCheck3Commas() {
       let arr = [];
       const q = await adminDb.collection('3commas_logs').where('smart_trade_id', '==', String(x.split(':')[1])).get();
       q.forEach((doc) => {
-        arr.push({id: doc.id, ...doc.data()});
+        arr.push({ id: doc.id, ...doc.data() });
       });
-      arr.map(async(doc) => {
+      arr.map(async (doc) => {
         await adminDb
           .collection('3commas_logs')
           .doc(doc.id)
           .update({
             status_type: dataFindOn3comas.status.type,
-            profit:dataFindOn3comas?.profit || null,
-            status:dataFindOn3comas?.status || null,
+            profit: dataFindOn3comas?.profit || null,
+            status: dataFindOn3comas?.status || null,
           });
       })
     });
@@ -227,17 +189,17 @@ async function findOn3Commas(smartTradeId) {
   let signatureMessage = queryParams;
   const signature = generateSignatureRsa(PRIVATE_KEY, signatureMessage);
   const config = {
-      method: "GET",
-      headers: {
-          'Content-Type': 'application/json',
-          APIKEY: API_KEY,
-          Signature: signature,
-      }
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      APIKEY: API_KEY,
+      Signature: signature,
+    }
   }
   const response = await fetch(finalUrl, config);
   const data = await response.json();
   // ==================================== TRACK API USAGE ================================
-  trackApiUsage().then((currentCount) => {console.log("API call count this minute:", currentCount);}).catch((e) => console.error("Error tracking API usage:", e));
+  trackApiUsage().then((currentCount) => { console.log("API call count this minute:", currentCount); }).catch((e) => console.error("Error tracking API usage:", e));
   return data;
 }
 
@@ -253,6 +215,17 @@ app.get('/cron-smart-trade-checker', async (c) => {
 
 app.get('/', (c) => {
   return c.json({ message: 'Byscript Hono Checker is running!' });
+})
+app.get('/redis', async (c) => {
+  const stringData = await redisClient.get('smart_trade_id:36299248');
+  const data = JSON.parse(stringData);
+  return c.json({ data, message: 'redis is running' });
+})
+app.get('/firebase', async (c) => {
+  const doc = await adminDb.collection('3commas_logs').doc('002KYBpXyO0jfDVAeb1p').get();
+
+  const data = { id: doc.id, ...doc.data() };
+  return c.json({ data, message: 'firebase is running' });
 })
 
 export default {
