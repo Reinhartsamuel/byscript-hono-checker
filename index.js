@@ -130,7 +130,7 @@ async function checkRedisAndCheck3Commas () {
 
     const promises2 = tradesDataExistOnRedisButNotOn3Commas.map(async (x) => {
       const dataFindOn3comas = await findOn3Commas(x); // x = smart_trade_id:${x}
-      console.log(dataFindOn3comas, 'dataFindOn3comas');
+      // console.log(dataFindOn3comas, 'dataFindOn3comas');
       if (dataFindOn3comas.error) {
         console.log(`dataFindOn3comas not found for ${x}, ERROR:${dataFindOn3comas.error}`);
         return;
