@@ -63,7 +63,7 @@ async function checkRedisAndCheck3Commas () {
         }
       };
       // ==================================== TRACK API USAGE ================================
-      trackApiUsage().then((currentCount) => { console.log("API call count this minute:", currentCount); }).catch((e) => console.error("Error tracking API usage:", e));
+      trackApiUsage().then((currentCount) => {  }).catch((e) => console.error("Error tracking API usage:", e));
       // ==================================== TRACK API USAGE ================================
       const response = await fetch(finalUrl, config);
       const data = await response.json();
@@ -84,7 +84,7 @@ async function checkRedisAndCheck3Commas () {
     console.log(`Start processing, ${activeTrades3Commas.length} trades data from 3Commas`);
     const promises1 = activeTrades3Commas.map(async (x) => {
       const smart_trade_id = x.id;
-      console.log(`processing id ${smart_trade_id} inside promises1 activeTrades3Commas`);
+      // console.log(`processing id ${smart_trade_id} inside promises1 activeTrades3Commas`);
       // get redis, unstrigify data, and update
       const redisData = await redisClient.get(`smart_trade_id:${smart_trade_id}`);
       let parsedData = JSON.parse(redisData);
@@ -239,7 +239,7 @@ async function findOn3Commas (smartTradeId) {
   const response = await fetch(finalUrl, config);
   const data = await response.json();
   // ==================================== TRACK API USAGE ================================
-  trackApiUsage().then((currentCount) => { console.log("API call count this minute:", currentCount); }).catch((e) => console.error("Error tracking API usage:", e));
+  trackApiUsage().then((currentCount) => {  }).catch((e) => console.error("Error tracking API usage:", e));
   return data;
 }
 
