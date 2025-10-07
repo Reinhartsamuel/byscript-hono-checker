@@ -1,8 +1,11 @@
 import { Hono } from 'hono';
 import { adminDb } from './configs/firebase';
-import { redisClient } from './configs/redis';
+import { redisClient, connectRedis, safeRedisOperation } from './configs/redis';
 import generateSignatureRsa from './utils/generateSignatureRsa';
 const app = new Hono();
+
+// Initialize Redis connection
+await connectRedis();
 
 // Environment variables - these should be set in your deployment environment
 const API_KEY = process.env.THREE_COMMAS_API_KEY_CREATE_SMART_TRADE;
@@ -74,10 +77,10 @@ async function checkRedisAndCheck3Commas () {
     const promises1 = activeTrades3Commas.map(async (x) => {
       const smart_trade_id = x.id;
       // get redis, unstrigify data, and update
-      const redisData = await redisClient.get(`smart_trade_id:${smart_trade_id}`);
+      const redisData = await safeRedisOperation(() => redisClient.get(`smart_trade_id:${smart_trade_id}`));
       const parsedData = JSON.parse(redisData);
       const updatedData = { ...parsedData, status: x.status || null, status_type: x.status.type || null, profit: x.profit || null };
-      await redisClient.set(`smart_trade_id:${smart_trade_id}`, JSON.stringify(updatedData));
+      await safeRedisOperation(() => redisClient.set(`smart_trade_id:${smart_trade_id}`, JSON.stringify(updatedData)));
     });
     await Promise.allSettled(promises1);
 
@@ -139,7 +142,7 @@ async function checkRedisAndCheck3Commas () {
       } else {
         let createRecordOnFirestore = arr.find((y) => y.requestBody?.action === 'CREATE');
         if (!createRecordOnFirestore) {createRecordOnFirestore = arr[0];}
-        await redisClient.set(x, JSON.stringify(createRecordOnFirestore));
+        await safeRedisOperation(() => redisClient.set(x, JSON.stringify(createRecordOnFirestore)));
       }
     });
     const allPromises = await Promise.allSettled(promises.concat(promises2));
@@ -160,10 +163,10 @@ async function scanSmartTradeKeys (pattern = "smart_trade_id:*") {
   let keys = [];
 
   do {
-    const result = await redisClient.scan(cursor, {
+    const result = await safeRedisOperation(() => redisClient.scan(cursor, {
       MATCH: pattern,
       COUNT: 100
-    });
+    }), []);
 
     cursor = result.cursor; // new cursor
     keys = keys.concat(result.keys); // append found keys
@@ -221,7 +224,7 @@ app.get('/health', (c) => {
 
 app.get('/redis', async (c) => {
   try {
-    const stringData = await redisClient.get('smart_trade_id:36299248');
+    const stringData = await safeRedisOperation(() => redisClient.get('smart_trade_id:36299248'));
     const data = stringData ? JSON.parse(stringData) : null;
     return c.json({ data, message: 'redis is running' });
   } catch (error) {
