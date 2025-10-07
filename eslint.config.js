@@ -18,6 +18,7 @@ export default [
       }
     },
     rules: {
+      "no-undef": "error",
       "no-unused-vars": ["error", {
         "args": "none",
         "varsIgnorePattern": "^_",
@@ -29,7 +30,7 @@ export default [
       "eqeqeq": ["error", "always"],
       "curly": ["error", "all"],
       "semi": ["error", "always"],
-      "quotes": ["error", "double", "single", { "avoidEscape": true }],
+      "quotes": "off",
       "comma-dangle": ["error", "never"],
       "object-curly-spacing": ["error", "always"],
       "array-bracket-spacing": ["error", "never"],
@@ -54,7 +55,7 @@ export default [
   {
     files: ["index.js"],
     rules: {
-      "no-undef": "off"
+      "no-undef": "error"
     }
   },
   {

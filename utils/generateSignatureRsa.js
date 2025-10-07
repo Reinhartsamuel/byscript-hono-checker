@@ -1,4 +1,3 @@
-
 import forge from "node-forge";
 
 export default function generateSignatureRsa (privateKeyPem, payload) {
