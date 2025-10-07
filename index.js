@@ -211,7 +211,7 @@ app.get('/cron-smart-trade-checker', async (c) => {
 });
 
 app.get('/', (c) => {
-  return c.json({ message: 'Byscript Hono Checker is running!' });
+  return c.json({ message: 'Byscript Hono Checker is running!!' });
 });
 
 app.get('/health', (c) => {
