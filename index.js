@@ -163,7 +163,9 @@ async function checkRedisAndCheck3Commas () {
           .update({
             status_type: dataFindOn3comas.status.type,
             profit: dataFindOn3comas?.profit || null,
-            status: dataFindOn3comas?.status || null
+            status: dataFindOn3comas?.status || null,
+            profit_usd: dataFindOn3comas?.profit?.usd ? parseFloat(dataFindOn3comas?.profit?.usd) : null,
+            volume_usd: dataFindOn3comas?.position?.total?.value ? parseFloat(dataFindOn3comas?.position?.total?.value) : null
           });
       });
     });
